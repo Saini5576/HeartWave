@@ -1,0 +1,271 @@
+"use client";
+
+import type React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { UserPlus, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import * as Yup from "yup";
+import { useRouter } from "next/navigation";
+import { useFormik } from "formik";
+import toast, { Toaster } from "react-hot-toast";
+import ApiService from "@/helpers/api/Index";
+
+const initialValues = {
+  name: "",
+  email: "",
+  password: "",
+};
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().trim().required("Full Name is required."),
+  email: Yup.string()
+    .trim()
+    .email("Please enter a valid email address.")
+    .required("Email address is required."),
+  password: Yup.string().trim().required("Password is required."),
+});
+
+export function CreateAccountForm({ ...props }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const {
+    values,
+    isSubmitting,
+    errors,
+    touched,
+    handleBlur,
+    isValid,
+    dirty,
+    handleChange,
+    handleSubmit,
+  } = useFormik({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const response = await ApiService.SignUp({ register: values });
+        if (!response.success) {
+          toast.error(response.message);
+        } else {
+          router.push("/");
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    },
+  });
+
+  return (
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <div
+        className="min-h-screen flex items-center justify-center bg-gray-50 p-4"
+        {...props}
+      >
+        <div className="w-full max-w-4xl">
+          <Card className="overflow-hidden shadow-xl border-0 bg-white">
+            <CardContent className="grid p-0 md:grid-cols-2">
+              {/* Left side - Form */}
+              <div className="p-8 md:p-12 bg-white">
+                <div className="space-y-8">
+                  {/* Header */}
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl mx-auto flex items-center justify-center">
+                      <UserPlus className="w-8 h-8 text-white" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      Create Account
+                    </h1>
+                    <p className="text-gray-600">
+                      Join us today and get started
+                    </p>
+                  </div>
+
+                  {/* Form */}
+                  <form className="space-y-6" onSubmit={handleSubmit}>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="name"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Full Name
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        name="name"
+                        placeholder="Enter your full name"
+                        autoComplete="name"
+                        className={`h-12 px-4 border-gray-300 focus:border-green-500 focus:ring-green-500 ${
+                          touched.name && errors.name ? "border-red-500" : ""
+                        }`}
+                        value={values.name}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {touched.name && errors.name && (
+                        <div className="text-red-600 text-xs mt-1">
+                          {errors.name}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="email"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Email Address
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        autoComplete="email"
+                        className={`h-12 px-4 border-gray-300 focus:border-green-500 focus:ring-green-500 ${
+                          touched.email && errors.email ? "border-red-500" : ""
+                        }`}
+                        value={values.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {touched.email && errors.email && (
+                        <div className="text-red-600 text-xs mt-1">
+                          {errors.email}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="password"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          autoComplete="current-password"
+                          className={`h-12 px-4 border-gray-300 focus:border-green-500 focus:ring-green-500 ${
+                            touched.password && errors.password
+                              ? "border-red-500"
+                              : ""
+                          }`}
+                          value={values.password}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                      {touched.password && errors.password && (
+                        <div className="text-red-600 text-xs mt-1">
+                          {errors.password}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Password must be at least 8 characters long
+                      </p>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="terms"
+                        required
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                      />
+                      <Label htmlFor="terms" className="text-sm text-gray-600">
+                        I agree to the{" "}
+                        <a
+                          href="#"
+                          className="text-green-600 hover:text-green-700 font-medium"
+                        >
+                          Terms of Service
+                        </a>{" "}
+                        and{" "}
+                        <a
+                          href="#"
+                          className="text-green-600 hover:text-green-700 font-medium"
+                        >
+                          Privacy Policy
+                        </a>
+                      </Label>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full h-12 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      disabled={isSubmitting || !isValid || !dirty}
+                    >
+                      {isSubmitting ? "Creating Account..." : "Create Account"}
+                    </Button>
+                  </form>
+
+                  {/* Sign in link */}
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      Already have an account?{" "}
+                      <Link
+                        href="/"
+                        className="font-semibold text-green-600 hover:text-green-700"
+                      >
+                        Sign in
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right side - Branding */}
+              <div className="relative bg-gradient-to-br from-green-600  via-blue-600 to-teal-700 hidden md:flex">
+                <div className="flex flex-col justify-center items-center p-12 text-white relative z-10">
+                  <div className="text-center space-y-6">
+                    <div className="w-24 h-24 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center mb-8">
+                      <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                        <UserPlus className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <h2 className="text-3xl font-bold">Start your journey</h2>
+                    <p className="text-lg text-white/90 max-w-sm">
+                      Create your account and unlock access to amazing features
+                      and exclusive content.
+                    </p>
+                    <div className="flex items-center justify-center space-x-2 pt-4">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+                      <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decorative elements */}
+                <div className="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+                <div className="absolute bottom-10 left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white/10 rounded-full blur-lg"></div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </>
+  );
+}
