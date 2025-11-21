@@ -45,8 +45,8 @@ export function ForgotPasswordForm({ ...props }: React.ComponentProps<"div">) {
                     Forgot Password?
                   </h1>
                   <p className="text-gray-600">
-                    No worries! Enter your email address and we'll send you a
-                    reset link.
+                    No worries! Enter your email address and we&apos;ll send you
+                    a reset link.
                   </p>
                 </div>
 
@@ -120,9 +120,10 @@ export function ForgotPasswordForm({ ...props }: React.ComponentProps<"div">) {
                   </div>
                   <h2 className="text-3xl font-bold">Secure Recovery</h2>
                   <p className="text-lg text-white/90 max-w-sm">
-                    Your account security is our priority. We'll help you regain
-                    access safely.
+                    Your account security is our priority. We&apos;ll help you
+                    regain access safely.
                   </p>
+
                   <div className="flex items-center justify-center space-x-2 pt-4">
                     <div className="w-2 h-2 bg-white/60 rounded-full"></div>
                     <div className="w-2 h-2 bg-white rounded-full"></div>
